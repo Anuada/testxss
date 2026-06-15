@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>XSS Testing Lab</title>
+    <style>
+        body {
+            font-family: Arial;
+            margin: 20px;
+        }
+        .box {
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+        }
+        .danger {
+            background: #ffe6e6;
+        }
+        .safe {
+            background: #e6ffe6;
+        }
+    </style>
+</head>
+<body>
+
+<h1>🧪 XSS Testing Lab (For Scanner Testing Only)</h1>
+
+<!-- ================= INPUT ================= -->
+<h3>Input Test</h3>
+<input id="inputBox" placeholder="Type something..." />
+<button onclick="runTest()">Submit</button>
+
+<!-- ================= OUTPUT ================= -->
+<h3>1. Safe Output (textContent)</h3>
+<div id="safeOutput" class="box safe"></div>
+
+<h3>2. Unsafe Output (innerHTML ⚠️)</h3>
+<div id="unsafeOutput" class="box danger"></div>
+
+<h3>3. Script Context Injection (demo)</h3>
+<script>
+    var demo = "STATIC_VALUE";
+</script>
+
+<script id="dynamicScript"></script>
+
+<!-- ================= DOM XSS FROM URL ================= -->
+<h3>4. DOM XSS from URL (?q=)</h3>
+<div id="domOutput" class="box danger"></div>
+
+<!-- ================= LOG ================= -->
+<h3>5. Debug Log</h3>
+<pre id="log"></pre>
+
+<script>
+function log(msg) {
+    document.getElementById("log").textContent += msg + "\n";
+}
+
+function runTest() {
+    let input = document.getElementById("inputBox").value;
+
+    // SAFE OUTPUT
+    document.getElementById("safeOutput").textContent = input;
+
+    // ⚠️ UNSAFE OUTPUT (XSS VULNERABLE)
+    document.getElementById("unsafeOutput").innerHTML = input;
+
+    // SCRIPT CONTEXT INJECTION SIMULATION
+    document.getElementById("dynamicScript").innerHTML =
+        "var injected = '" + input + "';";
+
+    log("Input processed: " + input);
+}
+
+// ================= URL PARAMETER HANDLING =================
+const params = new URLSearchParams(window.location.search);
+const q = params.get("q");
+
+if (q) {
+    log("URL param detected: " + q);
+
+    // SAFE
+    document.getElementById("safeOutput").textContent = q;
+
+    // ⚠️ DOM XSS (unsafe)
+    document.getElementById("domOutput").innerHTML = q;
+}
+</script>
+
+</body>
+</html>
